@@ -19,7 +19,6 @@ def get_config_from_dns(domain):
             print (config_dict, flush=True)
             return config_dict
     except Exception as e:
-        print(f"Hiba a DNS lekérdezésnél: {e}")
         return ''
 
 # Autodiscover útvonal (Outlook számára)

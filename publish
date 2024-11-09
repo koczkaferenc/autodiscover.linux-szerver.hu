@@ -1,0 +1,9 @@
+#!/bin/bash
+docker stop autodiscover.linux-szerver.hu
+docker rm autodiscover.linux-szerver.hu
+docker image rm autodiscover.linux-szerver.hu
+echo y | docker buildx prune -a
+docker buildx build --platform linux/amd64 -t koczkaferenc/autodiscover .
+docker tag autodiscover.linux-szerver.hu koczkaferenc/autodiscover
+docker push koczkaferenc/autodiscover
+
