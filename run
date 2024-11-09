@@ -1,0 +1,5 @@
+#!/bin/bash
+APP="autodiscover.linux-szerver.hu"
+docker image rm $APP
+docker build -t $APP .
+docker run --rm -p 80:5000 --name="$APP" $APP
