@@ -1,59 +1,99 @@
 # autodiscover.linux-szerver.hu
 Autodiscover mailbox beállításhoz
 
-mcfg IN TXT "imap_server:imap.group1-mail.hu,smtp_server:smtp.group1-mail.hu,imap_port:143,smtp_port:587,imap_ssl:1,smtp_ssl:1"
+mcfg IN TXT "imap_server:m2.linux-szerver.hu,smtp_server:m2.linux-szerver.hu,imap_port:143,smtp_port:587,imap_ssl:0,smtp_ssl:0,imap_tls:1,smtp_tls:1"
 
-<autodiscover>
-    <emailProvider>
-        <domain>bitbazar.hu</domain>
-        <imapServer>imap.bitbazar.hu</imapServer>
-        <imapPort>993</imapPort>
-        <imapSSL>true</imapSSL>
-        <smtpServer>smtp.bitbazar.hu</smtpServer>
-        <smtpPort>465</smtpPort>
-        <smtpSSL>true</smtpSSL>
-    </emailProvider>
-</autodiscover>
+<Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">
+  <Response>
+    <Account>
+      <AccountType>email</AccountType>
+      <Action>settings</Action>
+      <Protocol>
+        <Type>IMAP</Type>
+        <Server>imap.bitbazar.hu</Server>
+        <Port>993</Port>
+        <SSL>true</SSL>
+        <AuthRequired>true</AuthRequired>
+      </Protocol>
+      <Protocol>
+        <Type>SMTP</Type>
+        <Server>smtp.bitbazar.hu</Server>
+        <Port>465</Port>
+        <SSL>true</SSL>
+        <AuthRequired>true</AuthRequired>
+      </Protocol>
+    </Account>
+  </Response>
+</Autodiscover>
 
-<autodiscover>
-    <emailProvider>
-        <domain>bitbazar.hu</domain>
-        <imapServer>imap.bitbazar.hu</imapServer>
-        <imapPort>143</imapPort>
-        <imapSSL>false</imapSSL>
-        <imapSTARTTLS>true</imapSTARTTLS>
-        <smtpServer>smtp.bitbazar.hu</smtpServer>
-        <smtpPort>587</smtpPort>
-        <smtpSSL>false</smtpSSL>
-        <smtpSTARTTLS>true</smtpSTARTTLS>
-    </emailProvider>
-</autodiscover>
+Starttls esetén:
+
+<Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">
+  <Response>
+    <Account>
+      <AccountType>email</AccountType>
+      <Action>settings</Action>
+      <Protocol>
+        <Type>IMAP</Type>
+        <Server>imap.bitbazar.hu</Server>
+        <Port>143</Port>
+        <SSL>false</SSL>
+        <AuthRequired>true</AuthRequired>
+        <TLS>true</TLS>
+      </Protocol>
+      <Protocol>
+        <Type>SMTP</Type>
+        <Server>smtp.bitbazar.hu</Server>
+        <Port>587</Port>
+        <SSL>false</SSL>
+        <AuthRequired>true</AuthRequired>
+        <TLS>true</TLS>
+      </Protocol>
+    </Account>
+  </Response>
+</Autodiscover>
 
 ----
 
+Thunderbird
 
-<autoconfig xmlns="http://schemas.microsoft.com/office/mail/configuration">
-    <emailProvider>
-        <domain>bitbazar.hu</domain>
-        <imapServer>imap.bitbazar.hu</imapServer>
-        <imapPort>993</imapPort>
-        <imapSSL>true</imapSSL>  <!-- SSL beállítás -->
-        <smtpServer>smtp.bitbazar.hu</smtpServer>
-        <smtpPort>465</smtpPort>
-        <smtpSSL>true</smtpSSL>  <!-- SSL beállítás -->
+<clientConfig version="1.1">
+    <emailProvider id="example.com">
+        <domain>example.com</domain>
+        <incomingServer type="imap">
+            <hostname>imap.example.com</hostname>
+            <port>993</port>
+            <socketType>SSL</socketType>
+            <authentication>password-cleartext</authentication>
+            <username>%EMAILADDRESS%</username>
+        </incomingServer>
+        <outgoingServer type="smtp">
+            <hostname>smtp.example.com</hostname>
+            <port>465</port>
+            <socketType>SSL</socketType>
+            <authentication>password-cleartext</authentication>
+            <username>%EMAILADDRESS%</username>
+        </outgoingServer>
     </emailProvider>
-</autoconfig>
+</clientConfig>
 
-<autoconfig xmlns="http://schemas.microsoft.com/office/mail/configuration">
-    <emailProvider>
-        <domain>bitbazar.hu</domain>
-        <imapServer>imap.bitbazar.hu</imapServer>
-        <imapPort>143</imapPort>
-        <imapSSL>false</imapSSL>  <!-- Nincs SSL, de a STARTTLS aktiválható -->
-        <imapSTARTTLS>true</imapSTARTTLS>  <!-- STARTTLS beállítás -->
-        <smtpServer>smtp.bitbazar.hu</smtpServer>
-        <smtpPort>587</smtpPort>
-        <smtpSSL>false</smtpSSL>  <!-- Nincs SSL, de a STARTTLS aktiválható -->
-        <smtpSTARTTLS>true</smtpSTARTTLS>  <!-- STARTTLS beállítás -->
+
+<clientConfig version="1.1">
+    <emailProvider id="example.com">
+        <domain>example.com</domain>
+        <incomingServer type="imap">
+            <hostname>imap.example.com</hostname>
+            <port>143</port>
+            <socketType>STARTTLS</socketType>
+            <authentication>password-cleartext</authentication>
+            <username>%EMAILADDRESS%</username>
+        </incomingServer>
+        <outgoingServer type="smtp">
+            <hostname>smtp.example.com</hostname>
+            <port>587</port>
+            <socketType>STARTTLS</socketType>
+            <authentication>password-cleartext</authentication>
+            <username>%EMAILADDRESS%</username>
+        </outgoingServer>
     </emailProvider>
-</autoconfig>
+</clientConfig>

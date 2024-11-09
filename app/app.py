@@ -8,18 +8,19 @@ app = Flask(__name__)
 def get_config_from_dns(domain):
     try:
         # Lekérjük a TXT rekordot az adott domainhez
+        # "imap_server:m2.linux-szerver.hu,smtp_server:m2.linux-szerver.hu,imap_port:143,smtp_port:587,imap_ssl:0,smtp_ssl:0,imap_tls:1,smtp_tls:1"
         result = dns.resolver.resolve(f"mcfg.{domain}", "TXT")
-        # Kivesszük az értékeket a TXT rekordból
         for txt in result:
             config_data = txt.to_text().strip('"')
             config_dict = {}
             for param in config_data.split(","):
                 key, value = param.split(":")
                 config_dict[key] = value
+            print (config_dict, flush=True)
             return config_dict
     except Exception as e:
         print(f"Hiba a DNS lekérdezésnél: {e}")
-        return None
+        return ''
 
 # Autodiscover útvonal (Outlook számára)
 @app.route('/autodiscover/autodiscover.xml', methods=['POST'])
@@ -31,7 +32,7 @@ def autodiscover():
     
     xml_response = f"""<?xml version="1.0" encoding="UTF-8"?>
     <Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">
-        <Response xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a">
+        <Response">
             <Account>
                 <AccountType>email</AccountType>
                 <Action>settings</Action>
@@ -39,17 +40,15 @@ def autodiscover():
                     <Type>IMAP</Type>
                     <Server>{config["imap_server"]}</Server>
                     <Port>{config["imap_port"]}</Port>
-                    {'<imapSSL>true</imapSSL>' if config["imap_ssl"] == 1}
-                    {'<imapSSL>false</imapSSL>' if config["imap_ssl"] == 0}
-                    {'<imapSTARTTLS>true</imapSTARTTLS>' if config["imap_tls"] == 1}
-                    {'<imapSTARTTLS>false</imapSTARTTLS>' if config["imap_tls"] == 0}
-
+                    {'<SSL>true</SSL>' if config["imap_ssl"] == '1' else '<TLS>true</TLS>' if config["imap_tls"] == '1' else '' }
+                    <AuthRequired>true</AuthRequired>
                 </Protocol>
                 <Protocol>
                     <Type>SMTP</Type>
                     <Server>{config["smtp_server"]}</Server>
                     <Port>{config["smtp_port"]}</Port>
-                    <SSL>{'true' if config["smtp_ssl"] == 1 else "false"}</SSL>
+                    {'<SSL>true</SSL>' if config["smtp_ssl"] == '1' else '<TLS>true</TLS>' if config["smtp_tls"] == '1' else '' }
+                    <AuthRequired>true</AuthRequired>
                 </Protocol>
             </Account>
         </Response>
@@ -77,14 +76,15 @@ def autoconfig():
             <incomingServer type="imap">
                 <hostname>{config["imap_server"]}</hostname>
                 <port>{config["imap_port"]}</port>
-                <socketType>{"SSL" if config["imap_ssl"] == "1" else "STARTTLS"}</socketType>
+                {'<socketType>SSL</socketType>' if config["imap_ssl"] == '1' else '<socketType>STARTTLS</socketType' if config["imap_tls"] == '1' else '' }
                 <authentication>password-cleartext</authentication>
             </incomingServer>
             <outgoingServer type="smtp">
                 <hostname>{config["smtp_server"]}</hostname>
                 <port>{config["smtp_port"]}</port>
-                <socketType>{"SSL" if config["smtp_ssl"] == "SSL" else "STARTTLS"}</socketType>
+                {'<socketType>SSL</socketType>' if config["smtp_ssl"] == '1' else '<socketType>STARTTLS</socketType' if config["smtp_tls"] == '1' else '' }
                 <authentication>password-cleartext</authentication>
+                <username>%EMAILADDRESS%</username>
             </outgoingServer>
         </emailProvider>
     </clientConfig>"""
